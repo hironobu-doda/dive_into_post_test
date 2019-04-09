@@ -22,9 +22,9 @@ class AgendasController < ApplicationController
   end
 
   def destroy
-
+    # @agenda_title = @agenda.title
     @agenda.team.members.each do |agenda|
-      AgendaMailer.agenda_mail(agenda.email).deliver
+      AgendaMailer.agenda_mail(agenda,@agenda.title).deliver
     end
 
     @agenda.destroy
@@ -34,9 +34,9 @@ class AgendasController < ApplicationController
   private
 
   def set_agenda
-    if current_user.id == (@working_team.owner_id || agenda.user.id)
+    # if current_user.id == @working_team.owner_id || current_user.id == agenda.user.id
       @agenda = Agenda.find(params[:id])
-    end
+    # end
   end
 
   def agenda_params

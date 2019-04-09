@@ -4,6 +4,6 @@ class TeamMailer < ApplicationMailer
 
   def team_mail(team)
     @team = team
-    mail to: @team, subject: "リーダー変更のお知らせメール"
+    mail to: @team.owner.email, subject: "リーダー変更のお知らせメール"
   end
 end
