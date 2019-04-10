@@ -38,11 +38,21 @@
               <table class="table">
                 <tbody>
                   <% @team.assigns.each do |assign| %>
-                    <tr>
-                      <td><%= image_tag 'default.jpg', size: '40x40' %></td>
-                      <td><%= assign.user.email %></td>
-                      <td><%= link_to '削除', team_assign_path(@team, assign), method: :delete, class: 'btn btn-sm btn-danger' %></td>
-                    </tr>
+                    <% if assign.user.id != @working_team.owner_id %>
+                      <tr>
+                        <td><%= image_tag 'default.jpg', size: '40x40' %></td>
+                        <td><%= assign.user.email %></td>
+                        <% if current_user.id == @working_team.owner_id%>
+                          <td><%= link_to '編集', edit_team_path(@team, assign), class: 'btn btn-sm btn-danger' %></td>
+                        <% end %>
+                        <% if current_user.id == @working_team.owner_id || current_user.id == assign.user.id %>
+                          <td><%= link_to '削除', team_assign_path(@team, assign), method: :delete, class: 'btn btn-sm btn-danger' %></td>
+                        <% end %>
+                        <% if current_user.id == @working_team.owner_id %>
+                          <td><%= link_to '権限移動', change_owner_teams_path(para1: assign.user_id.to_i, para2: @team.id),class: 'btn btn-sm btn-danger' %></td>
+                        <% end %>
+                      </tr>
+                    <% end %>
                   <% end %>
                 </tbody>
               </table>

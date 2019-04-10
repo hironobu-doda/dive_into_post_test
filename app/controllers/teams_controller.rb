@@ -1,6 +1,8 @@
 class TeamsController < ApplicationController
   before_action :authenticate_user!
+  # before_action :set_team, only: %i[show edit update destroy change_owner]
   before_action :set_team, only: %i[show edit update destroy]
+  # before_action :require_owner, only: %i[edit change_owner]
 
   def index
     @teams = Team.all
@@ -39,12 +41,24 @@ class TeamsController < ApplicationController
   end
 
   def destroy
-    @team.destroy
-    redirect_to teams_url, notice: 'チーム削除に成功しました！'
+    if current_user.id == @working_team.owner_id || current_user.id == Agenda.find(params[:id]).user.id
+      @team.destroy
+      redirect_to teams_url, notice: 'チーム削除に成功しました！'
+    end
   end
 
   def dashboard
     @team = current_user.keep_team_id ? Team.find(current_user.keep_team_id) : current_user.teams.first
+  end
+
+  def change_owner
+    if current_user.id == @working_team.owner_id
+      @team = Team.find(params[:para2])
+      @team.owner_id = params[:para1].to_i
+      @team.update(team_params)
+      TeamMailer.team_mail(@team).deliver
+      redirect_to team_path(params[:para2]), notice: 'リーダーを変更しました！'
+    end
   end
 
   private
