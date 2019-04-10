@@ -35,8 +35,9 @@ class AgendasController < ApplicationController
 
   def set_agenda
     # if current_user.id == @working_team.owner_id || current_user.id == agenda.user.id
+    if current_user.id == @working_team.owner_id || current_user.id == Agenda.find(params[:id]).user.id
       @agenda = Agenda.find(params[:id])
-    # end
+    end
   end
 
   def agenda_params

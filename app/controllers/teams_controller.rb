@@ -41,8 +41,10 @@ class TeamsController < ApplicationController
   end
 
   def destroy
-    @team.destroy
-    redirect_to teams_url, notice: 'チーム削除に成功しました！'
+    if current_user.id == @working_team.owner_id || current_user.id == Agenda.find(params[:id]).user.id
+      @team.destroy
+      redirect_to teams_url, notice: 'チーム削除に成功しました！'
+    end
   end
 
   def dashboard
@@ -50,20 +52,13 @@ class TeamsController < ApplicationController
   end
 
   def change_owner
-    # binding.pry
-    @team = Team.find(params[:para2])
-    @team.owner_id = params[:para1].to_i
-    @team.update(team_params)
-    # binding.pry
-    TeamMailer.team_mail(@team).deliver
-    # @team.owner_id.update(params[:para1])
-    redirect_to team_path(params[:para2]), notice: 'リーダーを変更しました！'
-
-    # if @team.update(owner_param)
-    #   tedirect_to @team, notice: '権限移動'
-    # else
-    #   render @team
-    # end
+    if current_user.id == @working_team.owner_id
+      @team = Team.find(params[:para2])
+      @team.owner_id = params[:para1].to_i
+      @team.update(team_params)
+      TeamMailer.team_mail(@team).deliver
+      redirect_to team_path(params[:para2]), notice: 'リーダーを変更しました！'
+    end
   end
 
   private
@@ -75,14 +70,4 @@ class TeamsController < ApplicationController
   def team_params
     params.fetch(:team, {}).permit %i[name icon icon_cache owner_id keep_team_id]
   end
-
-  # def owner_param
-  #   params.permit(:owner_id)
-  # end
-  #
-  # def requirere_owner
-  #   team = Team.frendly.find(params[:id])
-  #   redirect_to team_path(team.id), notice: "権限なし" unless current_user.id == team.owner_id
-  # end
-
 end
